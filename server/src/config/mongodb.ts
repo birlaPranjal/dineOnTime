@@ -1,10 +1,13 @@
-import { MongoClient, type Db } from "mongodb"
+import { MongoClient, type Db, type Document } from "mongodb"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 if (!process.env.MONGODB_URI) {
   throw new Error("Please add your MongoDB URI to environment variables")
 }
 
-const uri = process.env.MONGODB_URI
+const uri = process.env.MONGODB_URI ?? ""
 const options = {}
 
 let client: MongoClient
@@ -33,7 +36,7 @@ export async function getDatabase(): Promise<Db> {
   return client.db("dineontime")
 }
 
-export async function getCollection<T = any>(collectionName: string) {
+export async function getCollection<T extends Document = Document>(collectionName: string) {
   const db = await getDatabase()
   return db.collection<T>(collectionName)
 }

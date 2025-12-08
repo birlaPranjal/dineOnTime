@@ -24,23 +24,13 @@ export default function CustomerSignupPage() {
     setIsLoading(true)
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, name, phone, role: "customer" }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Registration failed")
-        return
-      }
+      const { authApi } = await import("@/lib/api")
+      await authApi.register({ email, password, name, phone, role: "customer" })
 
       toast.success("Account created successfully!")
       router.push("/customer/dashboard")
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.")
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.")
     } finally {
       setIsLoading(false)
     }

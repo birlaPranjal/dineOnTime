@@ -22,23 +22,13 @@ export default function RestaurantLoginPage() {
     setIsLoading(true)
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: "restaurant" }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Login failed")
-        return
-      }
+      const { authApi } = await import("@/lib/api")
+      const data = await authApi.login(email, password, "restaurant")
 
       toast.success("Login successful!")
       router.push(data.redirectUrl || "/restaurant/dashboard")
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.")
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.")
     } finally {
       setIsLoading(false)
     }

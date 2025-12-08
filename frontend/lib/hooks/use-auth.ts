@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
+import { authApi } from "@/lib/api"
 
 interface User {
   id: string
@@ -19,13 +20,8 @@ export function useAuth() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await fetch("/api/auth/me")
-      if (res.ok) {
-        const data = await res.json()
-        setUser(data.user)
-      } else {
-        setUser(null)
-      }
+      const data = await authApi.me()
+      setUser(data.user)
     } catch {
       setUser(null)
     } finally {
@@ -38,18 +34,7 @@ export function useAuth() {
   }, [fetchUser])
 
   const login = async (email: string, password: string, role?: string) => {
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role }),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      throw new Error(data.error || "Login failed")
-    }
-
+    const data = await authApi.login(email, password, role)
     setUser(data.user)
     return data
   }
@@ -61,24 +46,13 @@ export function useAuth() {
     phone?: string
     role?: string
   }) => {
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData),
-    })
-
-    const data = await res.json()
-
-    if (!res.ok) {
-      throw new Error(data.error || "Registration failed")
-    }
-
+    const data = await authApi.register(userData)
     setUser(data.user)
     return data
   }
 
   const logout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" })
+    await authApi.logout()
     setUser(null)
     router.push("/")
   }

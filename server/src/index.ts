@@ -1,12 +1,13 @@
+// Load environment variables FIRST before any other imports
+// Using require() ensures this executes before ES module imports are resolved
+require("dotenv").config()
+
 import express, { Express } from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
-import dotenv from "dotenv"
 import authRoutes from "./routes/auth"
 import insightsRoutes from "./routes/insights"
 
-// Load environment variables
-dotenv.config()
 
 const app: Express = express()
 const PORT = process.env.PORT || 3001

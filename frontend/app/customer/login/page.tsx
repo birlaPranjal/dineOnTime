@@ -26,23 +26,13 @@ export default function CustomerLoginPage() {
     setIsLoading(true)
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, role: "customer" }),
-      })
-
-      const data = await res.json()
-
-      if (!res.ok) {
-        toast.error(data.error || "Login failed")
-        return
-      }
+      const { authApi } = await import("@/lib/api")
+      const data = await authApi.login(email, password, "customer")
 
       toast.success("Login successful!")
       router.push(data.redirectUrl || "/customer/dashboard")
-    } catch (error) {
-      toast.error("Something went wrong. Please try again.")
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.")
     } finally {
       setIsLoading(false)
     }

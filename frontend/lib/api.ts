@@ -4,6 +4,33 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
 
+// Token storage key
+const TOKEN_KEY = "auth_token"
+
+/**
+ * Get stored authentication token
+ */
+export function getAuthToken(): string | null {
+  if (typeof window === "undefined") return null
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+/**
+ * Store authentication token
+ */
+export function setAuthToken(token: string): void {
+  if (typeof window === "undefined") return
+  localStorage.setItem(TOKEN_KEY, token)
+}
+
+/**
+ * Remove authentication token
+ */
+export function removeAuthToken(): void {
+  if (typeof window === "undefined") return
+  localStorage.removeItem(TOKEN_KEY)
+}
+
 /**
  * Makes a fetch request to the backend API with proper credentials
  */
@@ -13,18 +40,33 @@ export async function apiRequest<T = any>(
 ): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
   
+  // Get token from storage
+  const token = getAuthToken()
+  
+  // Build headers
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...options.headers,
+  }
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`
+  }
+  
   const response = await fetch(url, {
     ...options,
-    credentials: "include", // Important for cookies
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
+    credentials: "include", // Keep for backward compatibility
+    headers,
   })
 
   const data = await response.json()
 
   if (!response.ok) {
+    // If unauthorized, clear token
+    if (response.status === 401) {
+      removeAuthToken()
+    }
     throw new Error(data.error || "Request failed")
   }
 
@@ -36,8 +78,9 @@ export async function apiRequest<T = any>(
  */
 export const authApi = {
   login: async (email: string, password: string, role?: string) => {
-    return apiRequest<{
+    const data = await apiRequest<{
       success: boolean
+      token: string
       user: {
         id: string
         email: string
@@ -50,6 +93,13 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify({ email, password, role }),
     })
+    
+    // Store token
+    if (data.token) {
+      setAuthToken(data.token)
+    }
+    
+    return data
   },
 
   register: async (userData: {
@@ -59,8 +109,9 @@ export const authApi = {
     phone?: string
     role?: string
   }) => {
-    return apiRequest<{
+    const data = await apiRequest<{
       success: boolean
+      token: string
       user: {
         id: string
         email: string
@@ -71,12 +122,24 @@ export const authApi = {
       method: "POST",
       body: JSON.stringify(userData),
     })
+    
+    // Store token
+    if (data.token) {
+      setAuthToken(data.token)
+    }
+    
+    return data
   },
 
   logout: async () => {
-    return apiRequest<{ success: boolean }>("/api/auth/logout", {
-      method: "POST",
-    })
+    try {
+      await apiRequest<{ success: boolean }>("/api/auth/logout", {
+        method: "POST",
+      })
+    } finally {
+      // Always remove token from storage
+      removeAuthToken()
+    }
   },
 
   me: async () => {

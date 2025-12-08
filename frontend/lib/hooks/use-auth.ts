@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { authApi } from "@/lib/api"
+import { authApi, getAuthToken } from "@/lib/api"
 
 interface User {
   id: string
@@ -19,6 +19,14 @@ export function useAuth() {
   const router = useRouter()
 
   const fetchUser = useCallback(async () => {
+    // Check if token exists
+    const token = getAuthToken()
+    if (!token) {
+      setUser(null)
+      setIsLoading(false)
+      return
+    }
+
     try {
       const data = await authApi.me()
       setUser(data.user)
@@ -61,6 +69,9 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user,
+    isAdmin: user?.role === "admin",
+    isRestaurant: user?.role === "restaurant",
+    isCustomer: user?.role === "customer",
     login,
     register,
     logout,

@@ -43,6 +43,8 @@ router.post("/register", async (req: Request, res: Response) => {
 
     // Create session
     const token = await createSession(newUser)
+    
+    // Set cookie for backward compatibility
     res.cookie("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -53,6 +55,7 @@ router.post("/register", async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
+      token,
       user: {
         id: newUser._id.toString(),
         email: newUser.email,
@@ -96,6 +99,8 @@ router.post("/login", async (req: Request, res: Response) => {
 
     // Create session
     const token = await createSession(user as User)
+    
+    // Set cookie for backward compatibility
     res.cookie("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -114,6 +119,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
+      token,
       user: {
         id: user._id!.toString(),
         email: user.email,

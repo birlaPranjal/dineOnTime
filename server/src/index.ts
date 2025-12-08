@@ -7,6 +7,7 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth"
 import insightsRoutes from "./routes/insights"
+import dashboardRoutes from "./routes/dashboard"
 
 
 const app: Express = express()
@@ -25,6 +26,7 @@ app.use(cookieParser())
 // Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/insights", insightsRoutes)
+app.use("/api/dashboard", dashboardRoutes)
 
 // Health check
 app.get("/health", (req, res) => {

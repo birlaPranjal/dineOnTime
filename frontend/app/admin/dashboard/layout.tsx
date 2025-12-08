@@ -16,6 +16,7 @@ import {
   FileText,
   Settings,
   Bell,
+  User,
 } from "lucide-react"
 
 const navItems = [
@@ -27,6 +28,7 @@ const navItems = [
   { title: "Complaints", href: "/admin/dashboard/complaints", icon: <MessageSquare className="h-4 w-4" />, badge: "8" },
   { title: "CMS", href: "/admin/dashboard/cms", icon: <FileText className="h-4 w-4" /> },
   { title: "Notifications", href: "/admin/dashboard/notifications", icon: <Bell className="h-4 w-4" /> },
+  { title: "Profile", href: "/admin/dashboard/profile", icon: <User className="h-4 w-4" /> },
   { title: "Settings", href: "/admin/dashboard/settings", icon: <Settings className="h-4 w-4" /> },
 ]
 

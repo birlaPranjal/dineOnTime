@@ -222,3 +222,112 @@ export const insightsApi = {
   },
 }
 
+/**
+ * Dashboard API functions
+ */
+export const dashboardApi = {
+  // Customer
+  getCustomerStats: async () => {
+    return apiRequest<{
+      stats: {
+        totalOrders: number
+        totalSpent: number
+        avgOrderValue: number
+        totalBookings: number
+        completedBookings: number
+        reviewsGiven: number
+      }
+      recentOrders: any[]
+      upcomingBookings: any[]
+    }>("/api/dashboard/customer/stats")
+  },
+
+  getCustomerOrders: async (page = 1, limit = 10) => {
+    return apiRequest<{
+      orders: any[]
+      pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+      }
+    }>(`/api/dashboard/customer/orders?page=${page}&limit=${limit}`)
+  },
+
+  getCustomerBookings: async (page = 1, limit = 10) => {
+    return apiRequest<{
+      bookings: any[]
+      pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+      }
+    }>(`/api/dashboard/customer/bookings?page=${page}&limit=${limit}`)
+  },
+
+  // Restaurant
+  getRestaurantStats: async () => {
+    return apiRequest<{
+      today: {
+        orders: number
+        revenue: number
+        bookings: number
+      }
+      overall: {
+        totalOrders: number
+        totalRevenue: number
+        avgOrderValue: number
+        avgRating: number
+        totalReviews: number
+      }
+      pendingOrders: any[]
+      upcomingBookings: any[]
+    }>("/api/dashboard/restaurant/stats")
+  },
+
+  getRestaurantOrders: async (page = 1, limit = 10, status?: string) => {
+    const statusParam = status ? `&status=${status}` : ""
+    return apiRequest<{
+      orders: any[]
+      pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+      }
+    }>(`/api/dashboard/restaurant/orders?page=${page}&limit=${limit}${statusParam}`)
+  },
+
+  getRestaurantBookings: async (page = 1, limit = 10, status?: string) => {
+    const statusParam = status ? `&status=${status}` : ""
+    return apiRequest<{
+      bookings: any[]
+      pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+      }
+    }>(`/api/dashboard/restaurant/bookings?page=${page}&limit=${limit}${statusParam}`)
+  },
+
+  // Profile
+  updateProfile: async (data: { name?: string; phone?: string; avatar?: string }) => {
+    return apiRequest<{
+      success: boolean
+      user: {
+        id: string
+        email: string
+        name: string
+        role: string
+        avatar?: string
+        phone?: string
+      }
+    }>("/api/dashboard/profile", {
+      method: "PUT",
+      body: JSON.stringify(data),
+    })
+  },
+}
+

@@ -81,7 +81,16 @@ export function DashboardSidebar({ navItems, user, brandTitle, brandSubtitle }: 
       </SidebarContent>
 
       <SidebarFooter className="border-t border-border p-4">
-        <div className="flex items-center gap-3">
+        <Link
+          href={
+            user.role.toLowerCase() === "admin"
+              ? "/admin/dashboard/profile"
+              : user.role.toLowerCase() === "restaurant"
+                ? "/restaurant/dashboard/profile"
+                : "/customer/dashboard/profile"
+          }
+          className="flex items-center gap-3 hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors"
+        >
           <Avatar className="h-9 w-9">
             <AvatarImage src={user.avatar || "/placeholder.svg"} />
             <AvatarFallback className="bg-primary/10 text-primary">
@@ -91,11 +100,11 @@ export function DashboardSidebar({ navItems, user, brandTitle, brandSubtitle }: 
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col overflow-hidden">
+          <div className="flex flex-col overflow-hidden flex-1">
             <span className="text-sm font-medium truncate">{user.name}</span>
             <span className="text-xs text-muted-foreground truncate">{user.role}</span>
           </div>
-        </div>
+        </Link>
       </SidebarFooter>
     </Sidebar>
   )

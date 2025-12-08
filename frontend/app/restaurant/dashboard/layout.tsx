@@ -17,6 +17,7 @@ import {
   Settings,
   CreditCard,
   Grid3X3,
+  User,
 } from "lucide-react"
 
 const navItems = [
@@ -29,6 +30,7 @@ const navItems = [
   { title: "Analytics", href: "/restaurant/dashboard/analytics", icon: <BarChart3 className="h-4 w-4" /> },
   { title: "Reviews", href: "/restaurant/dashboard/reviews", icon: <Star className="h-4 w-4" /> },
   { title: "Payments", href: "/restaurant/dashboard/payments", icon: <CreditCard className="h-4 w-4" /> },
+  { title: "Profile", href: "/restaurant/dashboard/profile", icon: <User className="h-4 w-4" /> },
   { title: "Settings", href: "/restaurant/dashboard/settings", icon: <Settings className="h-4 w-4" /> },
 ]
 

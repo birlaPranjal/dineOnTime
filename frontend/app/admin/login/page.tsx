@@ -101,8 +101,11 @@ export default function AdminLoginPage() {
             <span>Secured with 2FA authentication</span>
           </div>
 
-          <div className="text-center">
-            <Link href="/" className="text-sm text-primary hover:underline">
+          <div className="text-center space-y-2">
+            <Link href="/login" className="text-sm text-primary hover:underline block">
+              Use main login page
+            </Link>
+            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground block">
               Return to main site
             </Link>
           </div>

@@ -1,0 +1,14 @@
+{
+  "name": "dineontime",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n \"SERVER,FRONTEND\" -c \"cyan,magenta\" \"npm run dev --prefix server\" \"npm run dev --prefix frontend\"",
+    "build": "npm run build --prefix server && npm run build --prefix frontend",
+    "start": "concurrently -n \"SERVER,FRONTEND\" -c \"cyan,magenta\" \"npm run start --prefix server\" \"npm run start --prefix frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
+

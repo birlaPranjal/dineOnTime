@@ -9,8 +9,22 @@ import { StatsCard } from "@/components/dashboard/stats-card"
 import { restaurantReviews, restaurantUser } from "@/lib/mock-dashboard-data"
 import { Star, MessageSquare, Send, Utensils, Users, Building } from "lucide-react"
 
+type Review = {
+  id: string
+  customer: string
+  avatar: string | null
+  rating: number
+  food: number
+  service: number
+  ambiance: number
+  comment: string
+  date: string
+  orderId: string
+  reply: string | null
+}
+
 export default function RestaurantReviewsPage() {
-  const [reviews, setReviews] = useState(restaurantReviews)
+  const [reviews, setReviews] = useState<Review[]>(restaurantReviews as Review[])
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
   const [replyText, setReplyText] = useState("")
 

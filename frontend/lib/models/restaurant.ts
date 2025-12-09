@@ -1,4 +1,4 @@
-import type { ObjectId } from "mongodb"
+export type ObjectId = string
 
 export interface Restaurant {
   _id?: ObjectId

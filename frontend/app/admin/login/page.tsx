@@ -35,22 +35,22 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy flex items-center justify-center p-6">
+    <div className="min-h-screen bg-[#050E3C] flex items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <div className="bg-card rounded-2xl shadow-xl p-8 space-y-8">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 space-y-8">
           <div className="text-center space-y-2">
             <div className="flex justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-navy">
-                <Shield className="h-8 w-8 text-primary" />
+              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-[#DC0000]/10 border-2 border-[#DC0000]/30">
+                <Shield className="h-8 w-8 text-[#DC0000]" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-navy">Admin Portal</h1>
-            <p className="text-muted-foreground text-sm">DineOnTime Platform Administration</p>
+            <h1 className="text-2xl font-bold text-[#050E3C]">Admin Portal</h1>
+            <p className="text-gray-600 text-sm">DineOnTime Platform Administration</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email">Admin Email</Label>
+              <Label htmlFor="email" className="text-[#050E3C]">Admin Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-[#050E3C]">Password</Label>
               <div className="relative">
                 <Input
                   id="password"
@@ -77,14 +77,14 @@ export default function AdminLoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-base" disabled={isLoading}>
+            <Button type="submit" className="w-full h-12 text-base bg-[#DC0000] hover:bg-[#DC0000]/90" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -96,22 +96,22 @@ export default function AdminLoginPage() {
             </Button>
           </form>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center justify-center gap-2 text-xs text-gray-500">
             <Lock className="h-3 w-3" />
             <span>Secured with 2FA authentication</span>
           </div>
 
           <div className="text-center space-y-2">
-            <Link href="/login" className="text-sm text-primary hover:underline block">
+            <Link href="/login" className="text-sm text-[#DC0000] hover:underline block">
               Use main login page
             </Link>
-            <Link href="/" className="text-sm text-muted-foreground hover:text-foreground block">
+            <Link href="/" className="text-sm text-gray-600 hover:text-gray-800 block">
               Return to main site
             </Link>
           </div>
         </div>
 
-        <p className="text-center text-xs text-cream/50 mt-6">
+        <p className="text-center text-xs text-white/70 mt-6">
           Authorized personnel only. All access attempts are logged.
         </p>
       </div>

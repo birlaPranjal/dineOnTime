@@ -1,8 +1,13 @@
+"use client"
+
+import { useState } from "react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { LayoutDashboard, Clock, FileText, BarChart3, MessageSquare, Zap } from "lucide-react"
+import { Label } from "@/components/ui/label"
+import { LayoutDashboard, Clock, FileText, BarChart3, MessageSquare, Zap, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 const features = [
   {
@@ -59,6 +64,38 @@ const testimonials = [
 ]
 
 export default function ForRestaurantsPage() {
+  const [formData, setFormData] = useState({
+    restaurantName: "",
+    ownerName: "",
+    email: "",
+    phone: "",
+    city: "",
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const { partnershipApi } = await import("@/lib/api")
+      await partnershipApi.submitRequest(formData)
+
+      toast.success("Partnership request submitted successfully! Our team will get in touch within 24 hours.")
+      setFormData({
+        restaurantName: "",
+        ownerName: "",
+        email: "",
+        phone: "",
+        city: "",
+      })
+    } catch (error: any) {
+      toast.error(error.message || "Something went wrong. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-cream">
       <Header />
@@ -163,48 +200,90 @@ export default function ForRestaurantsPage() {
                 <p className="text-cream/70">Fill out the form below and our team will get in touch within 24 hours.</p>
               </div>
 
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Restaurant Name</label>
+                    <Label htmlFor="restaurantName" className="text-sm font-medium text-cream">
+                      Restaurant Name
+                    </Label>
                     <Input
+                      id="restaurantName"
                       placeholder="Your Restaurant"
+                      value={formData.restaurantName}
+                      onChange={(e) => setFormData({ ...formData, restaurantName: e.target.value })}
+                      required
                       className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Owner Name</label>
+                    <Label htmlFor="ownerName" className="text-sm font-medium text-cream">
+                      Owner Name
+                    </Label>
                     <Input
+                      id="ownerName"
                       placeholder="Your Name"
+                      value={formData.ownerName}
+                      onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
+                      required
                       className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Email</label>
+                    <Label htmlFor="email" className="text-sm font-medium text-cream">
+                      Email
+                    </Label>
                     <Input
+                      id="email"
                       type="email"
                       placeholder="you@restaurant.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      required
                       className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/50"
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Phone</label>
+                    <Label htmlFor="phone" className="text-sm font-medium text-cream">
+                      Phone
+                    </Label>
                     <Input
+                      id="phone"
                       type="tel"
                       placeholder="+91 98765 43210"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
                       className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/50"
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">City</label>
+                  <Label htmlFor="city" className="text-sm font-medium text-cream">
+                    City
+                  </Label>
                   <Input
+                    id="city"
                     placeholder="Bangalore, Mumbai, Delhi..."
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    required
                     className="bg-cream/10 border-cream/20 text-cream placeholder:text-cream/50"
                   />
                 </div>
-                <Button size="lg" className="w-full bg-cream text-navy hover:bg-cream/90">
-                  Submit Partnership Request
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="w-full bg-cream text-navy hover:bg-cream/90"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    "Submit Partnership Request"
+                  )}
                 </Button>
               </form>
 

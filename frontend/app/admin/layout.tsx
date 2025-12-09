@@ -1,10 +1,11 @@
 import type React from "react"
-import { AdminGuard } from "@/components/auth/admin-guard"
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return <AdminGuard>{children}</AdminGuard>
+  // Don't protect the entire admin layout - let individual pages handle their own protection
+  // The login page should not be protected
+  return <>{children}</>
 }

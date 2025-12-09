@@ -1,6 +1,7 @@
 "use client"
 
-import { Bell, Search, LogOut, Settings, User } from "lucide-react"
+import { Bell, Search, LogOut, User } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { SidebarTrigger } from "@/components/ui/sidebar"
@@ -14,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { useAuth } from "@/lib/hooks/use-auth"
 
 interface DashboardHeaderProps {
   title: string
@@ -21,12 +23,34 @@ interface DashboardHeaderProps {
     name: string
     email: string
     avatar?: string
+    role?: string
   }
   notifications?: number
   showSearch?: boolean
 }
 
 export function DashboardHeader({ title, user, notifications = 0, showSearch = true }: DashboardHeaderProps) {
+  const router = useRouter()
+  const { logout } = useAuth()
+
+  const getProfilePath = () => {
+    const role = user.role?.toLowerCase()
+    if (role === "admin") return "/admin/dashboard/profile"
+    if (role === "restaurant") return "/restaurant/dashboard/profile"
+    return "/customer/dashboard/profile"
+  }
+
+  const handleProfileClick = () => {
+    router.push(getProfilePath())
+  }
+
+  const handleLogout = async () => {
+    await logout()
+  }
+
+  // Use dummy person image
+  const dummyAvatar = "/placeholder-user.jpg"
+
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-card px-4 md:px-6">
       <SidebarTrigger className="md:hidden" />
@@ -56,7 +80,7 @@ export function DashboardHeader({ title, user, notifications = 0, showSearch = t
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage src={user.avatar || "/placeholder.svg"} />
+                <AvatarImage src={dummyAvatar} alt={user.name} />
                 <AvatarFallback className="bg-primary/10 text-primary">
                   {user.name
                     .split(" ")
@@ -74,16 +98,12 @@ export function DashboardHeader({ title, user, notifications = 0, showSearch = t
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleProfileClick}>
               <User className="mr-2 h-4 w-4" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>

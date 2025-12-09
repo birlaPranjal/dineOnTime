@@ -5,7 +5,8 @@ import type React from "react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { superAdminUser } from "@/lib/mock-dashboard-data"
+import { useAuth } from "@/lib/hooks/use-auth"
+import { AdminGuard } from "@/components/auth/admin-guard"
 import {
   LayoutDashboard,
   Store,
@@ -17,10 +18,12 @@ import {
   Settings,
   Bell,
   User,
+  Handshake,
 } from "lucide-react"
 
 const navItems = [
   { title: "Dashboard", href: "/admin/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { title: "Partnerships", href: "/admin/dashboard/partnerships", icon: <Handshake className="h-4 w-4" /> },
   { title: "Restaurants", href: "/admin/dashboard/restaurants", icon: <Store className="h-4 w-4" />, badge: "12" },
   { title: "Users", href: "/admin/dashboard/users", icon: <Users className="h-4 w-4" /> },
   { title: "Analytics", href: "/admin/dashboard/analytics", icon: <BarChart3 className="h-4 w-4" /> },
@@ -37,31 +40,47 @@ export default function AdminDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <SidebarProvider>
-      <DashboardSidebar
-        navItems={navItems}
-        user={{
-          name: superAdminUser.name,
-          email: superAdminUser.email,
-          avatar: superAdminUser.avatar,
-          role: superAdminUser.role,
-        }}
-        brandTitle="DineOnTime"
-        brandSubtitle="Super Admin"
-      />
-      <SidebarInset className="bg-cream">
-        <DashboardHeader
-          title="Admin Dashboard"
+    <AdminGuard>
+      <SidebarProvider>
+        <DashboardSidebar
+          navItems={navItems}
           user={{
-            name: superAdminUser.name,
-            email: superAdminUser.email,
-            avatar: superAdminUser.avatar,
+            name: user?.name || "Admin",
+            email: user?.email || "",
+            avatar: user?.avatar,
+            role: user?.role || "admin",
           }}
-          notifications={8}
+          brandTitle="DineOnTime"
+          brandSubtitle="Super Admin"
         />
-        <main className="flex-1 p-4 md:p-6">{children}</main>
-      </SidebarInset>
-    </SidebarProvider>
+        <SidebarInset className="bg-cream">
+          <DashboardHeader
+            title="Admin Dashboard"
+            user={{
+              name: user?.name || "Admin",
+              email: user?.email || "",
+              avatar: user?.avatar,
+              role: user?.role || "admin",
+            }}
+            notifications={8}
+          />
+          <main className="flex-1 p-4 md:p-6">{children}</main>
+        </SidebarInset>
+      </SidebarProvider>
+    </AdminGuard>
   )
 }

@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth"
 import insightsRoutes from "./routes/insights"
 import dashboardRoutes from "./routes/dashboard"
+import partnershipRoutes from "./routes/partnership"
+import restaurantRoutes from "./routes/restaurant"
 
 
 const app: Express = express()
@@ -27,6 +29,8 @@ app.use(cookieParser())
 app.use("/api/auth", authRoutes)
 app.use("/api/insights", insightsRoutes)
 app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/partnership", partnershipRoutes)
+app.use("/api/restaurant", restaurantRoutes)
 
 // Health check
 app.get("/health", (req, res) => {

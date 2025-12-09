@@ -5,7 +5,7 @@ import type React from "react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { restaurantUser } from "@/lib/mock-dashboard-data"
+import { useAuth } from "@/lib/hooks/use-auth"
 import {
   LayoutDashboard,
   ClipboardList,
@@ -39,26 +39,40 @@ export default function RestaurantDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <SidebarProvider>
       <DashboardSidebar
         navItems={navItems}
         user={{
-          name: restaurantUser.name,
-          email: restaurantUser.email,
-          avatar: restaurantUser.avatar,
-          role: restaurantUser.role,
+          name: user?.name || "Restaurant",
+          email: user?.email || "",
+          avatar: user?.avatar,
+          role: user?.role || "restaurant",
         }}
         brandTitle="DineOnTime"
         brandSubtitle="Restaurant Panel"
       />
       <SidebarInset className="bg-cream">
         <DashboardHeader
-          title={restaurantUser.restaurant.name}
+          title="Restaurant Dashboard"
           user={{
-            name: restaurantUser.name,
-            email: restaurantUser.email,
-            avatar: restaurantUser.avatar,
+            name: user?.name || "Restaurant",
+            email: user?.email || "",
+            avatar: user?.avatar,
+            role: user?.role || "restaurant",
           }}
           notifications={5}
         />

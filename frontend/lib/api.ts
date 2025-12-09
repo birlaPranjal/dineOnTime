@@ -156,6 +156,36 @@ export const authApi = {
       }
     }>("/api/auth/me")
   },
+
+  forgotPassword: async (email: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>("/api/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    })
+  },
+
+  verifyOTP: async (email: string, otp: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>("/api/auth/verify-otp", {
+      method: "POST",
+      body: JSON.stringify({ email, otp }),
+    })
+  },
+
+  resetPassword: async (email: string, otp: string, newPassword: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>("/api/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ email, otp, newPassword }),
+    })
+  },
 }
 
 /**
@@ -327,6 +357,194 @@ export const dashboardApi = {
     }>("/api/dashboard/profile", {
       method: "PUT",
       body: JSON.stringify(data),
+    })
+  },
+}
+
+/**
+ * Partnership API functions
+ */
+/**
+ * Restaurant API functions
+ */
+export const restaurantApi = {
+  getProfile: async () => {
+    return apiRequest<{
+      restaurant: {
+        _id: string
+        name: string
+        description: string
+        cuisine: string[]
+        address: string
+        city: string
+        state: string
+        pincode: string
+        phone: string
+        email: string
+        website: string
+        logo: string
+        images: string[]
+        priceRange: "budget" | "moderate" | "expensive" | "luxury"
+        avgCost: number
+        openingHours: Array<{
+          day: string
+          openTime: string
+          closeTime: string
+          isClosed: boolean
+        }>
+        features: string[]
+        gstNumber?: string
+        fssaiLicense?: string
+        bankAccountNumber?: string
+        bankIfscCode?: string
+        bankName?: string
+        accountHolderName?: string
+        approvalStatus: "pending_approval" | "approved" | "rejected"
+        isActive: boolean
+        isVerified: boolean
+        profileCompleted: boolean
+      }
+    }>("/api/restaurant/profile")
+  },
+
+  updateProfile: async (profileData: {
+    name?: string
+    description?: string
+    cuisine?: string[]
+    address?: string
+    city?: string
+    state?: string
+    pincode?: string
+    phone?: string
+    website?: string
+    logo?: string
+    images?: string[]
+    priceRange?: "budget" | "moderate" | "expensive" | "luxury"
+    avgCost?: number
+    openingHours?: Array<{
+      day: string
+      openTime: string
+      closeTime: string
+      isClosed: boolean
+    }>
+    features?: string[]
+    gstNumber?: string
+    fssaiLicense?: string
+    bankAccountNumber?: string
+    bankIfscCode?: string
+    bankName?: string
+    accountHolderName?: string
+  }) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      restaurant: any
+      profileCompleted: boolean
+    }>("/api/restaurant/profile", {
+      method: "PUT",
+      body: JSON.stringify(profileData),
+    })
+  },
+
+  submitForApproval: async () => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>("/api/restaurant/profile/submit", {
+      method: "POST",
+    })
+  },
+}
+
+/**
+ * Admin Restaurant Management API
+ */
+export const adminRestaurantApi = {
+  getRestaurants: async (status?: string) => {
+    const url = status ? `/api/restaurant/admin/restaurants?status=${status}` : "/api/restaurant/admin/restaurants"
+    return apiRequest<{
+      restaurants: any[]
+    }>(url)
+  },
+
+  approveRestaurant: async (restaurantId: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>(`/api/restaurant/admin/approve/${restaurantId}`, {
+      method: "POST",
+    })
+  },
+
+  rejectRestaurant: async (restaurantId: string, reason?: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>(`/api/restaurant/admin/reject/${restaurantId}`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    })
+  },
+}
+
+export const partnershipApi = {
+  submitRequest: async (data: {
+    restaurantName: string
+    ownerName: string
+    email: string
+    phone: string
+    city: string
+  }) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>("/api/partnership/request", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  },
+
+  getRequests: async (status?: string) => {
+    const statusParam = status ? `?status=${status}` : ""
+    return apiRequest<{
+      requests: Array<{
+        _id: string
+        restaurantName: string
+        ownerName: string
+        email: string
+        phone: string
+        city: string
+        status: "pending" | "approved" | "rejected"
+        createdAt: string
+        updatedAt: string
+      }>
+    }>(`/api/partnership/requests${statusParam}`)
+  },
+
+  approveRequest: async (requestId: string, password: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      user: {
+        id: string
+        email: string
+        name: string
+        role: string
+      }
+      restaurantId: string
+    }>(`/api/partnership/approve/${requestId}`, {
+      method: "POST",
+      body: JSON.stringify({ password }),
+    })
+  },
+
+  rejectRequest: async (requestId: string, reason?: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>(`/api/partnership/reject/${requestId}`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
     })
   },
 }

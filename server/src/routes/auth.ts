@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express"
 import { getCollection } from "../config/mongodb"
 import { hashPassword, createSession, verifyPassword, type User } from "../lib/auth"
 import { authenticate } from "../middleware/auth"
+import { sendOTPEmail } from "../lib/email"
 import { ObjectId } from "mongodb"
 
 const router = Router()
@@ -170,6 +171,126 @@ router.get("/me", authenticate, async (req: any, res: Response) => {
     })
   } catch (error) {
     console.error("Get user error:", error)
+    return res.status(500).json({ error: "Internal server error" })
+  }
+})
+
+// Forgot Password - Request OTP
+router.post("/forgot-password", async (req: Request, res: Response) => {
+  try {
+    const { email } = req.body
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" })
+    }
+
+    const users = await getCollection<User>("users")
+    const user = await users.findOne({ email: email.toLowerCase() })
+
+    // Don't reveal if user exists or not for security
+    if (!user) {
+      // Still return success to prevent email enumeration
+      return res.json({ success: true, message: "If the email exists, an OTP has been sent" })
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+
+    // Store OTP in database
+    const otps = await getCollection("password_resets")
+    await otps.deleteMany({ email: email.toLowerCase() }) // Remove old OTPs
+    await otps.insertOne({
+      email: email.toLowerCase(),
+      otp,
+      expiresAt,
+      createdAt: new Date(),
+      used: false,
+    })
+
+    // Send OTP email
+    try {
+      await sendOTPEmail(user.email, otp, user.name)
+    } catch (emailError) {
+      console.error("Email sending error:", emailError)
+      return res.status(500).json({ error: "Failed to send OTP email. Please try again later." })
+    }
+
+    return res.json({ success: true, message: "OTP has been sent to your email" })
+  } catch (error) {
+    console.error("Forgot password error:", error)
+    return res.status(500).json({ error: "Internal server error" })
+  }
+})
+
+// Verify OTP
+router.post("/verify-otp", async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body
+
+    if (!email || !otp) {
+      return res.status(400).json({ error: "Email and OTP are required" })
+    }
+
+    const otps = await getCollection("password_resets")
+    const otpRecord = await otps.findOne({
+      email: email.toLowerCase(),
+      otp,
+      used: false,
+      expiresAt: { $gt: new Date() },
+    })
+
+    if (!otpRecord) {
+      return res.status(400).json({ error: "Invalid or expired OTP" })
+    }
+
+    return res.json({ success: true, message: "OTP verified successfully" })
+  } catch (error) {
+    console.error("Verify OTP error:", error)
+    return res.status(500).json({ error: "Internal server error" })
+  }
+})
+
+// Reset Password
+router.post("/reset-password", async (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body
+
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: "Email, OTP, and new password are required" })
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: "Password must be at least 8 characters long" })
+    }
+
+    // Verify OTP
+    const otps = await getCollection("password_resets")
+    const otpRecord = await otps.findOne({
+      email: email.toLowerCase(),
+      otp,
+      used: false,
+      expiresAt: { $gt: new Date() },
+    })
+
+    if (!otpRecord) {
+      return res.status(400).json({ error: "Invalid or expired OTP" })
+    }
+
+    // Update password
+    const users = await getCollection<User>("users")
+    const hashedPassword = await hashPassword(newPassword)
+    await users.updateOne(
+      { email: email.toLowerCase() },
+      { $set: { password: hashedPassword, updatedAt: new Date() } }
+    )
+
+    // Mark OTP as used
+    await otps.updateOne({ _id: otpRecord._id }, { $set: { used: true } })
+
+    return res.json({ success: true, message: "Password reset successfully" })
+  } catch (error) {
+    console.error("Reset password error:", error)
     return res.status(500).json({ error: "Internal server error" })
   }
 })

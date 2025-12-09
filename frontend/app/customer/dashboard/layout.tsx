@@ -5,7 +5,7 @@ import type React from "react"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { customerUser } from "@/lib/mock-dashboard-data"
+import { useAuth } from "@/lib/hooks/use-auth"
 import { LayoutDashboard, UtensilsCrossed, CalendarDays, Heart, MapPin, Star, Settings, HelpCircle, User } from "lucide-react"
 
 const navItems = [
@@ -25,14 +25,27 @@ export default function CustomerDashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <SidebarProvider>
       <DashboardSidebar
         navItems={navItems}
         user={{
-          name: customerUser.name,
-          email: customerUser.email,
-          avatar: customerUser.avatar,
+          name: user?.name || "Customer",
+          email: user?.email || "",
+          avatar: user?.avatar,
           role: "Customer",
         }}
         brandTitle="DineOnTime"
@@ -41,9 +54,10 @@ export default function CustomerDashboardLayout({
         <DashboardHeader
           title="Dashboard"
           user={{
-            name: customerUser.name,
-            email: customerUser.email,
-            avatar: customerUser.avatar,
+            name: user?.name || "Customer",
+            email: user?.email || "",
+            avatar: user?.avatar,
+            role: user?.role || "customer",
           }}
           notifications={3}
         />

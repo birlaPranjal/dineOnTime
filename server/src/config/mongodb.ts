@@ -18,6 +18,8 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined
 }
 
+// For Vercel serverless, reuse connections across invocations
+// In development, use global to prevent multiple connections during hot reload
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options)
@@ -25,8 +27,12 @@ if (process.env.NODE_ENV === "development") {
   }
   clientPromise = global._mongoClientPromise
 } else {
-  client = new MongoClient(uri, options)
-  clientPromise = client.connect()
+  // Production/serverless: reuse connection if it exists, otherwise create new
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri, options)
+    global._mongoClientPromise = client.connect()
+  }
+  clientPromise = global._mongoClientPromise
 }
 
 export default clientPromise

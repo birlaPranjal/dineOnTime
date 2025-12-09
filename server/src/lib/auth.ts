@@ -39,6 +39,7 @@ export interface SessionPayload {
   role: string
   name: string
   exp?: number
+  [key: string]: any // Allow index signature for JWT compatibility
 }
 
 // Simple hash function for demo (in production use bcrypt)
@@ -71,7 +72,11 @@ export async function createSession(user: User): Promise<string> {
 export async function verifySession(token: string): Promise<SessionPayload | null> {
   try {
     const { payload } = await jwtVerify(token, JWT_SECRET)
-    return payload as SessionPayload
+    // Validate required fields exist
+    if (payload.userId && payload.email && payload.role && payload.name) {
+      return payload as SessionPayload
+    }
+    return null
   } catch {
     return null
   }

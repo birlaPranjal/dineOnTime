@@ -9,16 +9,17 @@ interface FloorPlanTableProps {
   capacity: number
   x: number
   y: number
-  status: "available" | "occupied" | "reserved" | "cleaning"
+  status: "available" | "occupied" | "reserved" | "cleaning" | "maintenance"
   isSelected?: boolean
   onClick?: () => void
 }
 
-const statusColors = {
+const statusColors: Record<string, { bg: string; stroke: string; fill: string }> = {
   available: { bg: "#22c55e", stroke: "#15803d", fill: "#dcfce7" },
   occupied: { bg: "#ef4444", stroke: "#b91c1c", fill: "#fee2e2" },
   reserved: { bg: "#f59e0b", stroke: "#b45309", fill: "#fef3c7" },
   cleaning: { bg: "#8b5cf6", stroke: "#6d28d9", fill: "#ede9fe" },
+  maintenance: { bg: "#6b7280", stroke: "#374151", fill: "#f3f4f6" },
 }
 
 export function FloorPlanTable({ id, name, type, capacity, x, y, status, isSelected, onClick }: FloorPlanTableProps) {

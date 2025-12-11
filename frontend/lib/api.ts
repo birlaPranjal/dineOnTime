@@ -549,3 +549,252 @@ export const partnershipApi = {
   },
 }
 
+/**
+ * Tables Management API
+ */
+export const tablesApi = {
+  getTables: async () => {
+    return apiRequest<{
+      tables: Array<{
+        _id: string
+        restaurantId: string
+        name: string
+        number: string
+        type: "round" | "square" | "rectangle" | "booth" | "bar"
+        capacity: number
+        status: "available" | "occupied" | "reserved" | "cleaning" | "maintenance"
+        location?: {
+          section?: string
+          x?: number
+          y?: number
+        }
+        currentBookingId?: string
+        createdAt: string
+        updatedAt: string
+      }>
+    }>("/api/tables")
+  },
+
+  getTable: async (tableId: string) => {
+    return apiRequest<{
+      table: any
+      currentBooking: any | null
+    }>(`/api/tables/${tableId}`)
+  },
+
+  createTable: async (data: {
+    name: string
+    number: string
+    type: "round" | "square" | "rectangle" | "booth" | "bar"
+    capacity: number
+    location?: {
+      section?: string
+      x?: number
+      y?: number
+    }
+  }) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      table: any
+    }>("/api/tables", {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
+  },
+
+  updateTable: async (tableId: string, data: {
+    name?: string
+    number?: string
+    type?: "round" | "square" | "rectangle" | "booth" | "bar"
+    capacity?: number
+    status?: "available" | "occupied" | "reserved" | "cleaning" | "maintenance"
+    location?: {
+      section?: string
+      x?: number
+      y?: number
+    }
+  }) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      table: any
+    }>(`/api/tables/${tableId}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    })
+  },
+
+  deleteTable: async (tableId: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+    }>(`/api/tables/${tableId}`, {
+      method: "DELETE",
+    })
+  },
+
+  updateTableStatus: async (tableId: string, status: "available" | "occupied" | "reserved" | "cleaning" | "maintenance") => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      table: any
+    }>(`/api/tables/${tableId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    })
+  },
+}
+
+/**
+ * Bookings Management API
+ */
+export const bookingsApi = {
+  getBookings: async (params?: {
+    page?: number
+    limit?: number
+    status?: string
+    date?: string // YYYY-MM-DD
+  }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.page) queryParams.append("page", params.page.toString())
+    if (params?.limit) queryParams.append("limit", params.limit.toString())
+    if (params?.status) queryParams.append("status", params.status)
+    if (params?.date) queryParams.append("date", params.date)
+
+    const url = `/api/bookings${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
+    return apiRequest<{
+      bookings: Array<{
+        _id: string
+        restaurantId: string
+        customerId: string
+        tableId?: string
+        date: string
+        time: string
+        guests: number
+        status: "pending" | "confirmed" | "arriving" | "seated" | "completed" | "cancelled" | "no-show"
+        specialRequests?: string
+        preOrder?: {
+          items: Array<{
+            itemId: string
+            name: string
+            quantity: number
+            price: number
+          }>
+          total: number
+        }
+        customerInfo?: {
+          name: string
+          phone: string
+          email?: string
+        }
+        customer?: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          avatar?: string
+        }
+        createdAt: string
+        updatedAt: string
+        confirmedAt?: string
+        cancelledAt?: string
+        cancellationReason?: string
+        eta?: string
+      }>
+      pagination: {
+        page: number
+        limit: number
+        total: number
+        pages: number
+      }
+    }>(url)
+  },
+
+  getBooking: async (bookingId: string) => {
+    return apiRequest<{
+      booking: {
+        _id: string
+        restaurantId: string
+        customerId: string
+        tableId?: string
+        date: string
+        time: string
+        guests: number
+        status: "pending" | "confirmed" | "arriving" | "seated" | "completed" | "cancelled" | "no-show"
+        specialRequests?: string
+        preOrder?: any
+        customer?: {
+          id: string
+          name: string
+          email: string
+          phone: string
+          avatar?: string
+        }
+        table?: {
+          id: string
+          name: string
+          number: string
+          capacity: number
+          type: string
+        }
+        createdAt: string
+        updatedAt: string
+        eta?: string
+      }
+    }>(`/api/bookings/${bookingId}`)
+  },
+
+  confirmBooking: async (bookingId: string, tableId?: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      booking: any
+    }>(`/api/bookings/${bookingId}/confirm`, {
+      method: "POST",
+      body: JSON.stringify({ tableId }),
+    })
+  },
+
+  cancelBooking: async (bookingId: string, reason?: string) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      booking: any
+    }>(`/api/bookings/${bookingId}/cancel`, {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    })
+  },
+
+  updateBookingStatus: async (
+    bookingId: string,
+    status: "arriving" | "seated" | "completed" | "no-show",
+    eta?: string
+  ) => {
+    return apiRequest<{
+      success: boolean
+      message: string
+      booking: any
+    }>(`/api/bookings/${bookingId}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status, eta }),
+    })
+  },
+
+  getCustomerBookings: async (customerId: string) => {
+    return apiRequest<{
+      bookings: Array<{
+        _id: string
+        restaurantId: string
+        customerId: string
+        date: string
+        time: string
+        guests: number
+        status: string
+        createdAt: string
+      }>
+    }>(`/api/bookings/customer/${customerId}`)
+  },
+}
+

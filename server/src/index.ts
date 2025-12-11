@@ -10,6 +10,8 @@ import insightsRoutes from "./routes/insights"
 import dashboardRoutes from "./routes/dashboard"
 import partnershipRoutes from "./routes/partnership"
 import restaurantRoutes from "./routes/restaurant"
+import tablesRoutes from "./routes/tables"
+import bookingsRoutes from "./routes/bookings"
 
 
 const app: Express = express()
@@ -31,6 +33,8 @@ app.use("/api/insights", insightsRoutes)
 app.use("/api/dashboard", dashboardRoutes)
 app.use("/api/partnership", partnershipRoutes)
 app.use("/api/restaurant", restaurantRoutes)
+app.use("/api/tables", tablesRoutes)
+app.use("/api/bookings", bookingsRoutes)
 
 // Health check
 app.get("/health", (req, res) => {

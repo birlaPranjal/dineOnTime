@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+        .info {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .info-value {
+            color: #111827;
+            font-weight: 600;
+        }
+        .endpoints {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .endpoints h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .endpoint {
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #059669;
+        }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            color: #6b7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🍽️ DineOnTime</div>
+        <h1 class="title"><%= title %></h1>
+        <p class="subtitle">Backend API Server</p>
+        <div class="status">● <%= status %></div>
+        
+        <div class="info">
+            <div class="info-item">
+                <span class="info-label">Version</span>
+                <span class="info-value">v<%= version %></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Status</span>
+                <span class="info-value"><%= status %></span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Timestamp</span>
+                <span class="info-value"><%= new Date(timestamp).toLocaleString() %></span>
+            </div>
+        </div>
+
+        <div class="endpoints">
+            <h3>Available Endpoints</h3>
+            <div class="endpoint">GET /health - Health check</div>
+            <div class="endpoint">POST /api/auth/login - User login</div>
+            <div class="endpoint">POST /api/auth/register - User registration</div>
+            <div class="endpoint">GET /api/dashboard/* - Dashboard data</div>
+            <div class="endpoint">GET /api/restaurant/* - Restaurant APIs</div>
+            <div class="endpoint">GET /api/tables/* - Table management</div>
+            <div class="endpoint">GET /api/bookings/* - Booking management</div>
+        </div>
+
+        <div class="footer">
+            <p>API Documentation & Support</p>
+            <p style="margin-top: 5px;">© 2025 DineOnTime. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+

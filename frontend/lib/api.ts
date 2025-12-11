@@ -2,7 +2,15 @@
  * API utility functions for making requests to the backend server
  */
 
+// Get API URL from environment variable
+// Defaults to localhost for local development
+// In production, this should be set to your deployed API URL (e.g., https://api-dot.vercel.app)
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+
+// Log API URL in development to help with debugging
+if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+  console.log("🔗 API URL:", API_URL)
+}
 
 // Token storage key
 const TOKEN_KEY = "auth_token"

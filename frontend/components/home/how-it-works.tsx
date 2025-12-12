@@ -67,13 +67,13 @@ export function HowItWorks() {
                   transition={{ duration: 0.6, delay: index * 0.2 }}
                   whileHover={{ scale: 1.02 }}
                 >
-                  <div className="flex items-start justify-between mb-6">
+                <div className="flex items-start justify-between mb-6">
                     <motion.div
                       className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
                       whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <step.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground" />
+                    <step.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground" />
                     </motion.div>
                     <motion.span
                       className="text-5xl font-bold text-navy/10"
@@ -84,11 +84,11 @@ export function HowItWorks() {
                     >
                       {step.step}
                     </motion.span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-navy mb-3">{step.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">{step.description}</p>
+                </div>
+                <h3 className="text-xl font-semibold text-navy mb-3">{step.title}</h3>
+                <p className="text-muted-foreground leading-relaxed">{step.description}</p>
                 </motion.div>
-                {index < steps.length - 1 && (
+              {index < steps.length - 1 && (
                   <motion.div
                     className="hidden md:block absolute top-1/2 -right-4 w-8 h-0.5 bg-border"
                     initial={{ scaleX: 0 }}
@@ -96,7 +96,7 @@ export function HowItWorks() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: index * 0.2 + 0.5 }}
                   />
-                )}
+              )}
               </motion.div>
             </StaggerItem>
           ))}

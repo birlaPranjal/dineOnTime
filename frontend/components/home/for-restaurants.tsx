@@ -69,9 +69,9 @@ export function ForRestaurants() {
                       whileHover={{ rotate: 360, scale: 1.1 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <benefit.icon className="w-5 h-5 text-primary" />
+                    <benefit.icon className="w-5 h-5 text-primary" />
                     </motion.div>
-                    <span className="text-cream/90">{benefit.text}</span>
+                  <span className="text-cream/90">{benefit.text}</span>
                   </motion.div>
                 </StaggerItem>
               ))}
@@ -84,9 +84,9 @@ export function ForRestaurants() {
               transition={{ duration: 0.6, delay: 0.8 }}
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button size="lg" className="bg-cream text-navy hover:bg-cream/90" asChild>
-                  <Link href="/for-restaurants">Join as a Restaurant Partner</Link>
-                </Button>
+            <Button size="lg" className="bg-cream text-navy hover:bg-cream/90" asChild>
+              <Link href="/for-restaurants">Join as a Restaurant Partner</Link>
+            </Button>
               </motion.div>
             </motion.div>
           </AnimateOnScroll>

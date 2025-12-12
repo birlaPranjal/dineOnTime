@@ -77,7 +77,7 @@ export function Testimonials() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.15 + 0.2 }}
                 >
-                  <Quote className="w-10 h-10 text-primary/20 mb-4" />
+              <Quote className="w-10 h-10 text-primary/20 mb-4" />
                 </motion.div>
                 <motion.div
                   className="flex gap-1 mb-4"
@@ -86,7 +86,7 @@ export function Testimonials() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: index * 0.15 + 0.4 }}
                 >
-                  {[...Array(testimonial.rating)].map((_, i) => (
+                {[...Array(testimonial.rating)].map((_, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, scale: 0 }}
@@ -97,7 +97,7 @@ export function Testimonials() {
                     >
                       <Star className="w-4 h-4 text-primary fill-primary" />
                     </motion.div>
-                  ))}
+                ))}
                 </motion.div>
                 <motion.p
                   className="text-foreground mb-6 leading-relaxed"
@@ -120,12 +120,12 @@ export function Testimonials() {
                     whileHover={{ scale: 1.2, rotate: 360 }}
                     transition={{ duration: 0.5 }}
                   >
-                    <span className="text-sm font-semibold text-primary">{testimonial.author[0]}</span>
+                  <span className="text-sm font-semibold text-primary">{testimonial.author[0]}</span>
                   </motion.div>
-                  <div>
-                    <p className="font-semibold text-navy">{testimonial.author}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.location}</p>
-                  </div>
+                <div>
+                  <p className="font-semibold text-navy">{testimonial.author}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                </div>
                 </motion.div>
               </motion.div>
             </StaggerItem>

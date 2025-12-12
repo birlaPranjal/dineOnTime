@@ -75,22 +75,22 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <StaggerItem key={index}>
               <motion.div
-                className="bg-card rounded-xl p-6 border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
+              className="bg-card rounded-xl p-6 border border-border hover:border-primary/30 hover:shadow-md transition-all duration-300 group"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 whileHover={{ y: -5, scale: 1.02 }}
-              >
+            >
                 <motion.div
                   className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary transition-colors"
                   whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
+                <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                 </motion.div>
-                <h3 className="text-lg font-semibold text-navy mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-semibold text-navy mb-2">{feature.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             </StaggerItem>
           ))}

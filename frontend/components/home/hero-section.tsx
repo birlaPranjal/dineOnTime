@@ -35,9 +35,9 @@ export function HeroSection() {
                   animate={{ rotate: [0, 10, -10, 0] }}
                   transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                 >
-                  <Star className="h-4 w-4 text-primary fill-primary" />
+              <Star className="h-4 w-4 text-primary fill-primary" />
                 </motion.div>
-                <span className="text-sm font-medium text-foreground">Trusted by 50,000+ diners</span>
+              <span className="text-sm font-medium text-foreground">Trusted by 50,000+ diners</span>
               </motion.div>
             </AnimateOnScroll>
 
@@ -67,28 +67,28 @@ export function HeroSection() {
             </AnimateOnScroll>
 
             <AnimateOnScroll delay={0.4} direction="up">
-              <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
+            <p className="text-lg text-muted-foreground max-w-xl leading-relaxed">
                 Skip the wait. Pre-order your meal, book your table, and arrive exactly when your food is ready — all
                 in one seamless platform.
-              </p>
+            </p>
             </AnimateOnScroll>
 
             <AnimateOnScroll delay={0.5} direction="up">
-              <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="lg" className="text-base px-8" asChild>
-                    <Link href="/restaurants">Book a Table</Link>
-                  </Button>
+              <Button size="lg" className="text-base px-8" asChild>
+                <Link href="/restaurants">Book a Table</Link>
+              </Button>
                 </motion.div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-base px-8 border-navy text-navy hover:bg-navy hover:text-cream bg-transparent"
-                    asChild
-                  >
-                    <Link href="/restaurants">Pre-Order Now</Link>
-                  </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="text-base px-8 border-navy text-navy hover:bg-navy hover:text-cream bg-transparent"
+                asChild
+              >
+                <Link href="/restaurants">Pre-Order Now</Link>
+              </Button>
                 </motion.div>
               </div>
             </AnimateOnScroll>
@@ -112,7 +112,7 @@ export function HeroSection() {
                     transition={{ type: "spring", stiffness: 300 }}
                   >
                     {item.filled ? (
-                      <Star className="h-5 w-5 text-primary fill-primary" />
+                <Star className="h-5 w-5 text-primary fill-primary" />
                     ) : (
                       <item.icon className="h-5 w-5 text-primary" />
                     )}

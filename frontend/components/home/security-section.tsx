@@ -43,10 +43,10 @@ export function SecuritySection() {
                 >
                   <item.icon className="w-10 h-10 text-primary" />
                 </motion.div>
-                <div>
+            <div>
                   <p className="font-semibold text-navy">{item.title}</p>
                   <p className="text-sm text-muted-foreground">{item.description}</p>
-                </div>
+            </div>
               </motion.div>
             </StaggerItem>
           ))}

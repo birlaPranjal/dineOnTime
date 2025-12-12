@@ -129,14 +129,14 @@ export function AppPreview() {
               transition={{ duration: 0.6, delay: 0.6 }}
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="#" className="inline-block">
-                  <img src="/download-on-app-store-black-badge.jpg" alt="Download on App Store" className="h-12" />
-                </Link>
+              <Link href="#" className="inline-block">
+                <img src="/download-on-app-store-black-badge.jpg" alt="Download on App Store" className="h-12" />
+              </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link href="#" className="inline-block">
-                  <img src="/get-it-on-google-play-black-badge.jpg" alt="Get it on Google Play" className="h-12" />
-                </Link>
+              <Link href="#" className="inline-block">
+                <img src="/get-it-on-google-play-black-badge.jpg" alt="Get it on Google Play" className="h-12" />
+              </Link>
               </motion.div>
             </motion.div>
           </AnimateOnScroll>

@@ -2,14 +2,54 @@
  * API utility functions for making requests to the backend server
  */
 
-// Get API URL from environment variable
-// Defaults to localhost for local development
-// In production, this should be set to your deployed API URL (e.g., https://api-dot.vercel.app)
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001"
+// Get API URL from environment variable or detect production
+function getApiUrl(): string {
+  // First, check if explicitly set via environment variable
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL
+  }
 
-// Log API URL in development to help with debugging
-if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-  console.log("🔗 API URL:", API_URL)
+  // If we're in the browser and on production (vercel.app domain), 
+  // we need the API URL to be set via environment variable
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname
+    
+    // Production detection
+    if (hostname.includes("vercel.app") || hostname.includes(".") && !hostname.includes("localhost")) {
+      // In production without API URL set, try to use the same domain for API
+      // This assumes the API might be on the same domain or a subdomain
+      const protocol = window.location.protocol
+      const host = window.location.host
+      
+      // Try to use api subdomain or same domain
+      // User should set NEXT_PUBLIC_API_URL in Vercel environment variables
+      console.error(
+        "⚠️ NEXT_PUBLIC_API_URL is not set! " +
+        "Please set it in Vercel environment variables. " +
+        "Using fallback API URL (may not work)."
+      )
+      
+      // Fallback: try api subdomain (this may not work if API is on different domain)
+      // IMPORTANT: Set NEXT_PUBLIC_API_URL in Vercel environment variables!
+      const apiHostname = hostname.replace(/^(www\.)?/, "api.")
+      return `${protocol}//${apiHostname}`
+    }
+  }
+
+  // Default to localhost for local development
+  return "http://localhost:3001"
+}
+
+const API_URL = getApiUrl()
+
+// Log API URL to help with debugging
+if (typeof window !== "undefined") {
+  if (process.env.NODE_ENV === "development") {
+    console.log("🔗 API URL:", API_URL)
+  } else if (!process.env.NEXT_PUBLIC_API_URL) {
+    console.warn("⚠️ Using fallback API URL:", API_URL)
+    console.warn("💡 Set NEXT_PUBLIC_API_URL in Vercel environment variables for production")
+  }
 }
 
 // Token storage key

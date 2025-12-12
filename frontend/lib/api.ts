@@ -2,37 +2,31 @@
  * API utility functions for making requests to the backend server
  */
 
-// Get API URL from environment variable or detect production
+/**
+ * Get the base URL for API requests
+ * Uses NEXT_PUBLIC_API_URL environment variable if set
+ * Falls back to localhost for local development
+ * 
+ * IMPORTANT: Set NEXT_PUBLIC_API_URL in Vercel environment variables for production
+ */
 function getApiUrl(): string {
-  // First, check if explicitly set via environment variable
+  // Always prioritize NEXT_PUBLIC_API_URL environment variable
   if (process.env.NEXT_PUBLIC_API_URL) {
-    return process.env.NEXT_PUBLIC_API_URL
+    // Remove trailing slash if present
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
   }
 
-  // If we're in the browser and on production (vercel.app domain), 
-  // we need the API URL to be set via environment variable
+  // Fallback for local development only
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname
     
-    // Production detection
-    if (hostname.includes("vercel.app") || hostname.includes(".") && !hostname.includes("localhost")) {
-      // In production without API URL set, try to use the same domain for API
-      // This assumes the API might be on the same domain or a subdomain
-      const protocol = window.location.protocol
-      const host = window.location.host
-      
-      // Try to use api subdomain or same domain
-      // User should set NEXT_PUBLIC_API_URL in Vercel environment variables
+    // If in production (not localhost) and NEXT_PUBLIC_API_URL is not set, show warning
+    if (hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.includes("localhost")) {
       console.error(
-        "⚠️ NEXT_PUBLIC_API_URL is not set! " +
+        "❌ NEXT_PUBLIC_API_URL is not set in production! " +
         "Please set it in Vercel environment variables. " +
-        "Using fallback API URL (may not work)."
+        "Falling back to localhost (this will not work in production)."
       )
-      
-      // Fallback: try api subdomain (this may not work if API is on different domain)
-      // IMPORTANT: Set NEXT_PUBLIC_API_URL in Vercel environment variables!
-      const apiHostname = hostname.replace(/^(www\.)?/, "api.")
-      return `${protocol}//${apiHostname}`
     }
   }
 
@@ -40,15 +34,21 @@ function getApiUrl(): string {
   return "http://localhost:3001"
 }
 
-const API_URL = getApiUrl()
+/**
+ * Base URL for all API requests
+ * This is the single source of truth for the server URL throughout the application
+ */
+export const API_URL = getApiUrl()
 
 // Log API URL to help with debugging
 if (typeof window !== "undefined") {
   if (process.env.NODE_ENV === "development") {
-    console.log("🔗 API URL:", API_URL)
+    console.log("🔗 API Base URL:", API_URL)
   } else if (!process.env.NEXT_PUBLIC_API_URL) {
-    console.warn("⚠️ Using fallback API URL:", API_URL)
+    console.warn("⚠️ NEXT_PUBLIC_API_URL not set. Using:", API_URL)
     console.warn("💡 Set NEXT_PUBLIC_API_URL in Vercel environment variables for production")
+  } else {
+    console.log("✅ Using API URL:", API_URL)
   }
 }
 

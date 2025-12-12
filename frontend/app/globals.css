@@ -131,6 +131,10 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-normal;
+  }
+  /* Set normal font weight for all elements by default */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button {
+    @apply font-normal;
   }
 }

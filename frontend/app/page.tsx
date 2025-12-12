@@ -8,6 +8,9 @@ import { StatsSection } from "@/components/home/stats-section"
 import { Testimonials } from "@/components/home/testimonials"
 import { AppPreview } from "@/components/home/app-preview"
 import { SecuritySection } from "@/components/home/security-section"
+import { BenefitsSection } from "@/components/home/benefits-section"
+import { PricingSection } from "@/components/home/pricing-section"
+import { FAQSection } from "@/components/home/faq-section"
 
 export default function HomePage() {
   return (
@@ -18,10 +21,13 @@ export default function HomePage() {
         <StatsSection />
         <HowItWorks />
         <FeaturesSection />
+        <BenefitsSection />
         <ForRestaurants />
         <Testimonials />
         <AppPreview />
+        <PricingSection />
         <SecuritySection />
+        <FAQSection />
       </main>
       <Footer />
     </div>

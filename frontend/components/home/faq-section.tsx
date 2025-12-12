@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
+import { AnimateOnScroll, StaggerChildren, StaggerItem } from "@/components/ui/animate-on-scroll"
 
 const faqs = [
   {
@@ -43,47 +45,94 @@ export function FAQSection() {
   return (
     <section className="py-20 lg:py-28 bg-card">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <span className="inline-block text-sm font-semibold text-primary mb-4 uppercase tracking-wider">
+        <AnimateOnScroll direction="fade" className="text-center max-w-2xl mx-auto mb-16">
+          <motion.span
+            className="inline-block text-sm font-semibold text-primary mb-4 uppercase tracking-wider"
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             FAQ
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-navy mb-4">Frequently Asked Questions</h2>
-          <p className="text-muted-foreground text-lg">Everything you need to know about DineOnTime</p>
-        </div>
+          </motion.span>
+          <motion.h2
+            className="text-3xl md:text-4xl font-bold text-navy mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            Frequently Asked Questions
+          </motion.h2>
+          <motion.p
+            className="text-muted-foreground text-lg"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Everything you need to know about DineOnTime
+          </motion.p>
+        </AnimateOnScroll>
 
-        <div className="max-w-3xl mx-auto space-y-4">
+        <StaggerChildren className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq, index) => (
-            <div
-              key={index}
-              className="bg-cream rounded-xl border border-border overflow-hidden transition-all duration-300 hover:border-primary/30"
-            >
-              <button
-                onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                className="w-full px-6 py-5 flex items-center justify-between text-left group"
+            <StaggerItem key={index}>
+              <motion.div
+                className="bg-cream rounded-xl border border-border overflow-hidden transition-all duration-300 hover:border-primary/30"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ scale: 1.01 }}
               >
-                <h3 className="text-lg font-semibold text-navy pr-4 group-hover:text-primary transition-colors">
-                  {faq.question}
-                </h3>
-                <ChevronDown
-                  className={cn(
-                    "w-5 h-5 text-muted-foreground flex-shrink-0 transition-transform duration-300",
-                    openIndex === index && "transform rotate-180 text-primary"
+                <motion.button
+                  onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                  className="w-full px-6 py-5 flex items-center justify-between text-left group"
+                  whileHover={{ x: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
+                  <h3 className="text-lg font-semibold text-navy pr-4 group-hover:text-primary transition-colors">
+                    {faq.question}
+                  </h3>
+                  <motion.div
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <ChevronDown
+                      className={cn(
+                        "w-5 h-5 text-muted-foreground flex-shrink-0 transition-colors duration-300",
+                        openIndex === index && "text-primary"
+                      )}
+                    />
+                  </motion.div>
+                </motion.button>
+                <AnimatePresence>
+                  {openIndex === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-6 pb-5">
+                        <motion.p
+                          className="text-muted-foreground leading-relaxed"
+                          initial={{ y: -10, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          transition={{ duration: 0.3, delay: 0.1 }}
+                        >
+                          {faq.answer}
+                        </motion.p>
+                      </div>
+                    </motion.div>
                   )}
-                />
-              </button>
-              <div
-                className={cn(
-                  "overflow-hidden transition-all duration-300",
-                  openIndex === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                )}
-              >
-                <div className="px-6 pb-5">
-                  <p className="text-muted-foreground leading-relaxed">{faq.answer}</p>
-                </div>
-              </div>
-            </div>
+                </AnimatePresence>
+              </motion.div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerChildren>
       </div>
     </section>
   )

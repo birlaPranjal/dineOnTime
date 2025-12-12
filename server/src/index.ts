@@ -34,9 +34,17 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true)
+      
+      // Check if the origin matches exactly
+      // Note: CORS only uses origin (protocol + domain + port), NOT paths
+      // The browser sends just the origin (e.g., "https://dine-onn-time.vercel.app")
+      // regardless of which page makes the request (/admin/login, /customer/login, etc.)
+      // So https://dine-onn-time.vercel.app in allowedOrigins covers ALL paths on that domain
       if (allowedOrigins.includes(origin)) {
         callback(null, true)
       } else {
+        console.warn(`🚫 CORS blocked origin: ${origin}`)
+        console.log(`✅ Allowed origins: ${allowedOrigins.join(", ")}`)
         callback(new Error("Not allowed by CORS"))
       }
     },

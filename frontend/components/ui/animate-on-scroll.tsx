@@ -38,16 +38,18 @@ export function AnimateOnScroll({
       y: 0,
       x: 0,
       scale: 1,
-      transition: {
-        duration: 0.6,
-        delay,
-        ease: [0.25, 0.25, 0, 1],
-      },
     },
   }
 
   return (
-    <motion.div ref={ref} initial="hidden" animate={controls} variants={variants} className={className}>
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={controls}
+      variants={variants}
+      transition={{ duration: 0.6, delay, ease: [0.25, 0.25, 0, 1] as any }}
+      className={className}
+    >
       {children}
     </motion.div>
   )
@@ -107,13 +109,13 @@ export function StaggerItem({ children, direction = "up" }: StaggerItemProps) {
       opacity: 1,
       y: 0,
       x: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.25, 0.25, 0, 1],
-      },
     },
   }
 
-  return <motion.div variants={variants}>{children}</motion.div>
+  return (
+    <motion.div variants={variants} transition={{ duration: 0.5, ease: [0.25, 0.25, 0, 1] as any }}>
+      {children}
+    </motion.div>
+  )
 }
 

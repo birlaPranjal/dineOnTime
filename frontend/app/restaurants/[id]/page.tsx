@@ -1,15 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { restaurants, menuItems } from "@/lib/mock-data"
-import { Star, MapPin, Clock, ArrowLeft, Plus, Minus, ShoppingBag, Calendar, ChevronRight, Leaf } from "lucide-react"
+import { menuItems } from "@/lib/mock-data"
+import { Star, MapPin, Clock, ArrowLeft, Plus, Minus, ShoppingBag, Calendar, ChevronRight, Leaf, Loader2 } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { publicRestaurantApi } from "@/lib/api"
+import { toast } from "sonner"
 
 type CartItem = {
   id: string
@@ -22,6 +24,8 @@ type CartItem = {
 export default function RestaurantDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const [restaurant, setRestaurant] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [cart, setCart] = useState<CartItem[]>([])
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [selectedDate, setSelectedDate] = useState("")
@@ -29,8 +33,33 @@ export default function RestaurantDetailPage() {
   const [guestCount, setGuestCount] = useState(2)
   const [selectedTableType, setSelectedTableType] = useState("")
 
-  const restaurant = restaurants.find((r) => r.id === params.id)
+  useEffect(() => {
+    loadRestaurant()
+  }, [params.id])
+
+  const loadRestaurant = async () => {
+    try {
+      setLoading(true)
+      const identifier = params.id as string
+      const response = await publicRestaurantApi.getRestaurantBySlug(identifier)
+      setRestaurant(response.restaurant)
+    } catch (error: any) {
+      console.error("Failed to load restaurant:", error)
+      toast.error(error.message || "Failed to load restaurant")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const menu = menuItems.filter((item) => item.restaurantId === params.id)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   if (!restaurant) {
     return (
@@ -105,15 +134,17 @@ export default function RestaurantDetailPage() {
               </Link>
               <h1 className="text-3xl md:text-4xl font-bold mb-2">{restaurant.name}</h1>
               <div className="flex flex-wrap items-center gap-4 text-sm">
-                <span className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  {restaurant.rating} ({restaurant.reviews} reviews)
-                </span>
-                <span>{restaurant.cuisine}</span>
-                <span>{restaurant.priceRange}</span>
+                {restaurant.rating > 0 && (
+                  <span className="flex items-center gap-1">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    {restaurant.rating.toFixed(1)} ({restaurant.totalReviews || 0} reviews)
+                  </span>
+                )}
+                <span>{restaurant.cuisine.join(", ")}</span>
+                <span>{restaurant.priceRange.toUpperCase()}</span>
                 <span className="flex items-center gap-1">
                   <MapPin className="w-4 h-4" />
-                  {restaurant.address}
+                  {restaurant.address}, {restaurant.city}
                 </span>
               </div>
             </div>
@@ -219,28 +250,30 @@ export default function RestaurantDetailPage() {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Prep Time</span>
-                      <span className="font-medium">{restaurant.deliveryTime}</span>
+                      <span className="text-muted-foreground">Avg. Cost</span>
+                      <span className="font-medium">₹{restaurant.avgCost || "N/A"}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Distance</span>
-                      <span className="font-medium">{restaurant.distance}</span>
+                      <span className="text-muted-foreground">Location</span>
+                      <span className="font-medium">{restaurant.city}</span>
                     </div>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-border">
-                    <h4 className="font-medium text-navy mb-3">Available Tables</h4>
-                    <div className="space-y-2">
-                      {restaurant.tables.map((table) => (
-                        <div key={table.type} className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">{table.type}</span>
-                          <span className={`font-medium ${table.available > 0 ? "text-green-600" : "text-red-600"}`}>
-                            {table.available} available
-                          </span>
-                        </div>
-                      ))}
+                  {restaurant.tables && restaurant.tables.length > 0 && (
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <h4 className="font-medium text-navy mb-3">Available Tables</h4>
+                      <div className="space-y-2">
+                        {restaurant.tables.map((table: any, index: number) => (
+                          <div key={table.type || index} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{table.type}</span>
+                            <span className={`font-medium ${table.available > 0 ? "text-green-600" : "text-red-600"}`}>
+                              {table.available} available
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {cart.length > 0 && (
@@ -321,28 +354,30 @@ export default function RestaurantDetailPage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Table Type</label>
-              <div className="grid grid-cols-2 gap-2">
-                {restaurant.tables.map((table) => (
-                  <button
-                    key={table.type}
-                    onClick={() => setSelectedTableType(table.type)}
-                    disabled={table.available === 0}
-                    className={`p-3 rounded-lg border text-sm transition-colors ${
-                      selectedTableType === table.type
-                        ? "border-primary bg-primary/10 text-primary"
-                        : table.available > 0
-                          ? "border-border hover:border-primary/50"
-                          : "border-border bg-muted text-muted-foreground cursor-not-allowed"
-                    }`}
-                  >
-                    <div className="font-medium">{table.type}</div>
-                    <div className="text-xs text-muted-foreground">{table.available} available</div>
-                  </button>
-                ))}
+            {restaurant.tables && restaurant.tables.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Table Type</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {restaurant.tables.map((table: any, index: number) => (
+                    <button
+                      key={table.type || index}
+                      onClick={() => setSelectedTableType(table.type)}
+                      disabled={table.available === 0}
+                      className={`p-3 rounded-lg border text-sm transition-colors ${
+                        selectedTableType === table.type
+                          ? "border-primary bg-primary/10 text-primary"
+                          : table.available > 0
+                            ? "border-border hover:border-primary/50"
+                            : "border-border bg-muted text-muted-foreground cursor-not-allowed"
+                      }`}
+                    >
+                      <div className="font-medium">{table.type}</div>
+                      <div className="text-xs text-muted-foreground">{table.available} available</div>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             {cart.length > 0 && (
               <div className="bg-accent/50 rounded-lg p-4">
@@ -358,7 +393,7 @@ export default function RestaurantDetailPage() {
             <Button
               className="w-full"
               onClick={handleBooking}
-              disabled={!selectedDate || !selectedTime || !selectedTableType}
+              disabled={!selectedDate || !selectedTime || (restaurant.tables?.length > 0 && !selectedTableType)}
             >
               Confirm Booking
             </Button>

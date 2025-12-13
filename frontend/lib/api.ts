@@ -4,33 +4,39 @@
 
 /**
  * Get the base URL for API requests
- * Uses NEXT_PUBLIC_API_URL environment variable if set
- * Falls back to localhost for local development
+ * ALWAYS uses NEXT_PUBLIC_API_URL environment variable if set
+ * Falls back to localhost ONLY for local development
  * 
  * IMPORTANT: Set NEXT_PUBLIC_API_URL in Vercel environment variables for production
+ * This is the SINGLE SOURCE OF TRUTH for all API base URLs in the frontend
  */
 function getApiUrl(): string {
-  // Always prioritize NEXT_PUBLIC_API_URL environment variable
+  // ALWAYS prioritize NEXT_PUBLIC_API_URL environment variable
+  // This must be set in production (Vercel environment variables)
   if (process.env.NEXT_PUBLIC_API_URL) {
     // Remove trailing slash if present
-    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
+    const url = process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "")
+    return url
   }
 
   // Fallback for local development only
+  // Check if we're in the browser and on localhost
   if (typeof window !== "undefined") {
     const hostname = window.location.hostname
     
-    // If in production (not localhost) and NEXT_PUBLIC_API_URL is not set, show warning
+    // If NOT on localhost and NEXT_PUBLIC_API_URL is not set, this is an error
     if (hostname !== "localhost" && hostname !== "127.0.0.1" && !hostname.includes("localhost")) {
       console.error(
-        "❌ NEXT_PUBLIC_API_URL is not set in production! " +
-        "Please set it in Vercel environment variables. " +
-        "Falling back to localhost (this will not work in production)."
+        "❌ ERROR: NEXT_PUBLIC_API_URL is not set in production! " +
+        "Please set NEXT_PUBLIC_API_URL in Vercel environment variables. " +
+        "Falling back to localhost (this will NOT work in production)."
       )
+      console.error(`Current hostname: ${hostname}`)
     }
   }
 
-  // Default to localhost for local development
+  // Default to localhost ONLY for local development
+  // This should only be used when running `npm run dev` locally
   return "http://localhost:3001"
 }
 
@@ -84,12 +90,13 @@ export function removeAuthToken(): void {
  */
 export async function apiRequest<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  requireAuth: boolean = true
 ): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`
   
-  // Get token from storage
-  const token = getAuthToken()
+  // Get token from storage (only if auth is required)
+  const token = requireAuth ? getAuthToken() : null
   
   // Build headers
   const headers: Record<string, string> = {
@@ -115,7 +122,10 @@ export async function apiRequest<T = any>(
     if (response.status === 401) {
       removeAuthToken()
     }
-    throw new Error(data.error || "Request failed")
+    // Create error with response data for detailed error handling
+    const error: any = new Error(data.error || data.message || "Request failed")
+    error.response = { data }
+    throw error
   }
 
   return data
@@ -451,6 +461,7 @@ export const restaurantApi = {
         isActive: boolean
         isVerified: boolean
         profileCompleted: boolean
+        slug?: string
       }
     }>("/api/restaurant/profile")
   },
@@ -501,6 +512,101 @@ export const restaurantApi = {
     }>("/api/restaurant/profile/submit", {
       method: "POST",
     })
+  },
+}
+
+/**
+ * Public Restaurant API functions (no authentication required)
+ */
+export const publicRestaurantApi = {
+  getRestaurants: async (params?: {
+    city?: string
+    cuisine?: string
+    search?: string
+  }) => {
+    const queryParams = new URLSearchParams()
+    if (params?.city) queryParams.append("city", params.city)
+    if (params?.cuisine) queryParams.append("cuisine", params.cuisine)
+    if (params?.search) queryParams.append("search", params.search)
+    
+    const url = `/api/restaurant/public/restaurants${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
+    return apiRequest<{
+      restaurants: Array<{
+        _id: string
+        id: string
+        slug: string
+        name: string
+        description: string
+        cuisine: string[]
+        address: string
+        city: string
+        state: string
+        pincode: string
+        phone: string
+        email: string
+        website: string
+        logo: string
+        images: string[]
+        priceRange: "budget" | "moderate" | "expensive" | "luxury"
+        avgCost: number
+        openingHours: Array<{
+          day: string
+          openTime: string
+          closeTime: string
+          isClosed: boolean
+        }>
+        features: string[]
+        rating: number
+        totalReviews: number
+        isOpen: boolean
+        distance: string
+        deliveryTime: string
+        tables?: Array<{
+          type: string
+          available: number
+        }>
+      }>
+    }>(url, { method: "GET" }, false) // No auth required
+  },
+
+  getRestaurantBySlug: async (slugOrId: string) => {
+    return apiRequest<{
+      restaurant: {
+        _id: string
+        id: string
+        slug: string
+        name: string
+        description: string
+        cuisine: string[]
+        address: string
+        city: string
+        state: string
+        pincode: string
+        phone: string
+        email: string
+        website: string
+        logo: string
+        images: string[]
+        priceRange: "budget" | "moderate" | "expensive" | "luxury"
+        avgCost: number
+        openingHours: Array<{
+          day: string
+          openTime: string
+          closeTime: string
+          isClosed: boolean
+        }>
+        features: string[]
+        rating: number
+        totalReviews: number
+        isOpen: boolean
+        distance: string
+        deliveryTime: string
+        tables: Array<{
+          type: string
+          available: number
+        }>
+      }
+    }>(`/api/restaurant/public/restaurants/${slugOrId}`, { method: "GET" }, false) // No auth required
   },
 }
 

@@ -1,27 +1,54 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { restaurants, cuisineTypes, sortOptions } from "@/lib/mock-data"
-import { Search, MapPin, Star, Clock, Filter, ChevronDown } from "lucide-react"
+import { cuisineTypes, sortOptions } from "@/lib/mock-data"
+import { Search, MapPin, Star, Clock, Filter, ChevronDown, Loader2 } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { publicRestaurantApi } from "@/lib/api"
+import { toast } from "sonner"
 
 export default function RestaurantsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCuisine, setSelectedCuisine] = useState("All")
   const [sortBy, setSortBy] = useState("relevance")
+  const [restaurants, setRestaurants] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const filteredRestaurants = restaurants.filter((restaurant) => {
-    const matchesSearch =
-      restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      restaurant.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesCuisine = selectedCuisine === "All" || restaurant.cuisine === selectedCuisine
-    return matchesSearch && matchesCuisine
-  })
+  useEffect(() => {
+    loadRestaurants()
+  }, [])
+
+  useEffect(() => {
+    // Debounce search
+    const timer = setTimeout(() => {
+      loadRestaurants()
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [searchQuery, selectedCuisine])
+
+  const loadRestaurants = async () => {
+    try {
+      setLoading(true)
+      const params: any = {}
+      if (searchQuery) params.search = searchQuery
+      if (selectedCuisine !== "All") params.cuisine = selectedCuisine
+      
+      const response = await publicRestaurantApi.getRestaurants(params)
+      setRestaurants(response.restaurants || [])
+    } catch (error: any) {
+      console.error("Failed to load restaurants:", error)
+      toast.error(error.message || "Failed to load restaurants")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const filteredRestaurants = restaurants
 
   return (
     <div className="min-h-screen bg-cream">
@@ -102,11 +129,16 @@ export default function RestaurantsPage() {
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredRestaurants.map((restaurant) => (
-            <Link
-              key={restaurant.id}
-              href={`/restaurants/${restaurant.id}`}
+        {loading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRestaurants.map((restaurant) => (
+              <Link
+                key={restaurant.id}
+                href={`/restaurants/${restaurant.slug || restaurant.id}`}
               className="group bg-card rounded-xl overflow-hidden border border-border hover:shadow-lg transition-all duration-300"
             >
               <div className="relative h-48 overflow-hidden">
@@ -120,7 +152,7 @@ export default function RestaurantsPage() {
                     <span className="text-card font-semibold">Currently Closed</span>
                   </div>
                 )}
-                {restaurant.tags.length > 0 && (
+                {restaurant.tags && restaurant.tags.length > 0 && (
                   <div className="absolute top-3 left-3 flex gap-2">
                     {restaurant.tags.slice(0, 2).map((tag) => (
                       <span
@@ -140,32 +172,32 @@ export default function RestaurantsPage() {
                     <h3 className="font-semibold text-lg text-navy group-hover:text-primary transition-colors">
                       {restaurant.name}
                     </h3>
-                    <p className="text-sm text-muted-foreground">{restaurant.cuisine}</p>
+                    <p className="text-sm text-muted-foreground">{restaurant.cuisine?.join(", ") || "N/A"}</p>
                   </div>
-                  <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded">
-                    <Star className="w-4 h-4 text-green-600 fill-green-600" />
-                    <span className="text-sm font-medium text-green-600">{restaurant.rating}</span>
-                  </div>
+                  {restaurant.rating && restaurant.rating > 0 && (
+                    <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded">
+                      <Star className="w-4 h-4 text-green-600 fill-green-600" />
+                      <span className="text-sm font-medium text-green-600">{restaurant.rating.toFixed(1)}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-4 h-4" />
-                    {restaurant.distance}
+                    {restaurant.city}
                   </span>
                   <span className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    {restaurant.deliveryTime}
+                    {restaurant.isOpen ? "Open Now" : "Closed"}
                   </span>
-                  <span>{restaurant.priceRange}</span>
+                  <span>{restaurant.priceRange?.toUpperCase() || "N/A"}</span>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <div className="text-sm">
-                    <span className="text-muted-foreground">Tables: </span>
-                    <span className="font-medium text-green-600">
-                      {restaurant.tables.reduce((acc, t) => acc + t.available, 0)} available
-                    </span>
+                    <span className="text-muted-foreground">Avg. Cost: </span>
+                    <span className="font-medium">₹{restaurant.avgCost || "N/A"}</span>
                   </div>
                   <Button
                     size="sm"
@@ -178,7 +210,8 @@ export default function RestaurantsPage() {
               </div>
             </Link>
           ))}
-        </div>
+          </div>
+        )}
 
         {filteredRestaurants.length === 0 && (
           <div className="text-center py-16">

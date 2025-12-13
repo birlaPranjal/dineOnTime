@@ -455,6 +455,7 @@ export default function RestaurantTablesPage() {
                         key={table._id}
                         id={table._id}
                         name={table.name}
+                        number={table.number}
                         type={table.type}
                         capacity={table.capacity}
                         x={table.x || 0}

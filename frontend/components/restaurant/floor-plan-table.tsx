@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 interface FloorPlanTableProps {
   id: string
   name: string
+  number?: string // Table number to display
   type: string
   capacity: number
   x: number
@@ -22,7 +23,7 @@ const statusColors: Record<string, { bg: string; stroke: string; fill: string }>
   maintenance: { bg: "#6b7280", stroke: "#374151", fill: "#f3f4f6" },
 }
 
-export function FloorPlanTable({ id, name, type, capacity, x, y, status, isSelected, onClick }: FloorPlanTableProps) {
+export function FloorPlanTable({ id, name, number, type, capacity, x, y, status, isSelected, onClick }: FloorPlanTableProps) {
   const colors = statusColors[status]
 
   const renderTable = () => {
@@ -225,7 +226,7 @@ export function FloorPlanTable({ id, name, type, capacity, x, y, status, isSelec
         textAnchor="middle"
         className="text-xs font-semibold fill-navy pointer-events-none"
       >
-        {id}
+        {number || name}
       </text>
     </g>
   )

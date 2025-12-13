@@ -22,6 +22,7 @@ import {
 
 const navItems = [
   { title: "Dashboard", href: "/restaurant/dashboard", icon: <LayoutDashboard className="h-4 w-4" /> },
+  { title: "Profile", href: "/restaurant/dashboard/profile", icon: <User className="h-4 w-4" /> },
   { title: "Orders", href: "/restaurant/dashboard/orders", icon: <ClipboardList className="h-4 w-4" />, badge: "5" },
   { title: "Bookings", href: "/restaurant/dashboard/bookings", icon: <CalendarDays className="h-4 w-4" />, badge: "3" },
   { title: "Tables", href: "/restaurant/dashboard/tables", icon: <Grid3X3 className="h-4 w-4" /> },

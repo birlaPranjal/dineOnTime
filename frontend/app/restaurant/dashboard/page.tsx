@@ -1,12 +1,16 @@
 "use client"
 
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { StatsCard } from "@/components/dashboard/stats-card"
 import { restaurantOrders, restaurantBookings, restaurantUser } from "@/lib/mock-dashboard-data"
-import { IndianRupee, ClipboardList, CalendarDays, Star, ChevronRight, Clock, MapPin, AlertCircle } from "lucide-react"
+import { IndianRupee, ClipboardList, CalendarDays, Star, ChevronRight, Clock, MapPin, AlertCircle, ExternalLink, Eye } from "lucide-react"
+import { restaurantApi } from "@/lib/api"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 
 const orderStatusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
@@ -21,8 +25,49 @@ const bookingStatusColors: Record<string, string> = {
 }
 
 export default function RestaurantDashboardPage() {
+  const router = useRouter()
+  const [profile, setProfile] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const pendingOrders = restaurantOrders.filter((o) => o.status === "pending" || o.status === "preparing")
   const arrivingBookings = restaurantBookings.filter((b) => b.status === "arriving" || b.status === "confirmed")
+
+  useEffect(() => {
+    checkProfile()
+  }, [])
+
+  const checkProfile = async () => {
+    try {
+      const response = await restaurantApi.getProfile()
+      if (response.restaurant) {
+        setProfile(response.restaurant)
+        // Redirect to profile page if profile is not completed (profile page handles setup)
+        if (!response.restaurant.profileCompleted) {
+          router.push("/restaurant/dashboard/profile")
+          return
+        }
+      }
+    } catch (error: any) {
+      console.error("Failed to load profile:", error)
+      // If profile doesn't exist, redirect to profile page (which handles setup)
+      router.push("/restaurant/dashboard/profile")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    )
+  }
+
+  const previewUrl = profile?.slug 
+    ? `/restaurants/${profile.slug}`
+    : profile?._id 
+      ? `/restaurants/${profile._id}`
+      : null
 
   return (
     <div className="space-y-6">
@@ -30,16 +75,54 @@ export default function RestaurantDashboardPage() {
         <div>
           <h2 className="text-2xl font-bold text-navy">Welcome back, {restaurantUser.name.split(" ")[0]}!</h2>
           <p className="text-muted-foreground">
-            Here&apos;s today&apos;s overview for {restaurantUser.restaurant.name}
+            Here&apos;s today&apos;s overview for {profile?.name || restaurantUser.restaurant.name}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
+          {profile?.approvalStatus === "pending_approval" && (
+            <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">
+              <Clock className="h-3 w-3 mr-1" />
+              Pending Approval
+            </Badge>
+          )}
+          {profile?.approvalStatus === "approved" && previewUrl && (
+            <Button variant="outline" size="sm" asChild>
+              <Link href={previewUrl} target="_blank">
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Restaurant Page
+              </Link>
+            </Button>
+          )}
+          <span className="flex items-center gap-1.5 text-sm">
             <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
             Restaurant Open
           </span>
         </div>
       </div>
+
+      {profile?.approvalStatus === "pending_approval" && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Your restaurant profile is pending admin approval. You&apos;ll be able to manage your restaurant once approved.
+            <Link href="/restaurant/dashboard/profile" className="ml-2 text-primary underline">
+              View Profile
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {profile?.approvalStatus === "rejected" && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Your restaurant profile was rejected. Please review and update your information, then resubmit for approval.
+            <Link href="/restaurant/dashboard/setup" className="ml-2 underline">
+              Update Profile
+            </Link>
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard

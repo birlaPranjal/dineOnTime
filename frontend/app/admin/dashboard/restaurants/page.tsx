@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { adminRestaurantApi } from "@/lib/api"
+import { RestaurantPreview } from "@/components/admin/restaurant-preview"
 
 interface Restaurant {
   _id: string
@@ -549,182 +550,61 @@ export default function AdminRestaurantsPage() {
         </TabsContent>
       </Tabs>
 
-      {/* View Restaurant Details Dialog */}
+      {/* View Restaurant Details Dialog - Shows restaurant preview like slug page */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5" />
-              {selectedRestaurant?.name}
-            </DialogTitle>
-            <DialogDescription>Complete restaurant profile details</DialogDescription>
-          </DialogHeader>
-
-          {selectedRestaurant && (
-            <div className="space-y-6">
-              {/* Basic Info */}
+        <DialogContent className="max-w-7xl max-h-[95vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-semibold mb-3">Basic Information</h3>
-                <div className="grid gap-3 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Description:</span>
-                    <p className="mt-1">{selectedRestaurant.description || "Not provided"}</p>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <span className="text-muted-foreground">Cuisine:</span>
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {selectedRestaurant.cuisine?.map((c) => (
-                          <Badge key={c} variant="outline" className="text-xs">
-                            {c}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Price Range:</span>
-                      <p className="mt-1 capitalize">{selectedRestaurant.priceRange}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Average Cost:</span>
-                    <p className="mt-1">₹{selectedRestaurant.avgCost || 0} per person</p>
-                  </div>
-                </div>
+                <DialogTitle className="flex items-center gap-2">
+                  <Building className="h-5 w-5" />
+                  Restaurant Preview
+                </DialogTitle>
+                <DialogDescription>
+                  This is how the restaurant appears on the public page
+                </DialogDescription>
               </div>
-
-              {/* Location */}
-              <div>
-                <h3 className="font-semibold mb-3">Location</h3>
-                <div className="grid gap-2 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Address:</span>
-                    <p className="mt-1">{selectedRestaurant.address || "Not provided"}</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3">
-                    <div>
-                      <span className="text-muted-foreground">City:</span>
-                      <p className="mt-1">{selectedRestaurant.city}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">State:</span>
-                      <p className="mt-1">{selectedRestaurant.state}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Pincode:</span>
-                      <p className="mt-1">{selectedRestaurant.pincode}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact */}
-              <div>
-                <h3 className="font-semibold mb-3">Contact Information</h3>
-                <div className="grid gap-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-muted-foreground" />
-                    <span>{selectedRestaurant.phone}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span>{selectedRestaurant.email}</span>
-                  </div>
-                  {selectedRestaurant.website && (
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-muted-foreground" />
-                      <a href={selectedRestaurant.website} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                        {selectedRestaurant.website}
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Opening Hours */}
-              <div>
-                <h3 className="font-semibold mb-3">Opening Hours</h3>
-                <div className="space-y-2 text-sm">
-                  {selectedRestaurant.openingHours?.map((oh) => (
-                    <div key={oh.day} className="flex items-center justify-between">
-                      <span className="font-medium">{oh.day}</span>
-                      <span className="text-muted-foreground">
-                        {oh.isClosed ? "Closed" : `${oh.openTime} - ${oh.closeTime}`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Features */}
-              {selectedRestaurant.features && selectedRestaurant.features.length > 0 && (
-                <div>
-                  <h3 className="font-semibold mb-3">Features & Amenities</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedRestaurant.features.map((f) => (
-                      <Badge key={f} variant="outline">
-                        {f}
-                      </Badge>
-                    ))}
-                  </div>
+              {selectedRestaurant?.approvalStatus === "pending_approval" && (
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setSelectedRestaurant(selectedRestaurant)
+                      setIsRejectDialogOpen(true)
+                      setIsViewDialogOpen(false)
+                    }}
+                  >
+                    <XCircle className="h-4 w-4 mr-2" />
+                    Reject
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => handleApprove(selectedRestaurant._id)}
+                    disabled={isProcessing === selectedRestaurant._id}
+                  >
+                    {isProcessing === selectedRestaurant._id ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                    )}
+                    Approve
+                  </Button>
                 </div>
               )}
-
-              {/* Status */}
-              <div>
-                <h3 className="font-semibold mb-3">Status</h3>
-                <div className="grid gap-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Approval Status:</span>
-                    <Badge className={statusColors[selectedRestaurant.approvalStatus]} variant="outline">
-                      {selectedRestaurant.approvalStatus}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Profile Completed:</span>
-                    <Badge variant={selectedRestaurant.profileCompleted ? "default" : "outline"}>
-                      {selectedRestaurant.profileCompleted ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Is Active:</span>
-                    <Badge variant={selectedRestaurant.isActive ? "default" : "outline"}>
-                      {selectedRestaurant.isActive ? "Yes" : "No"}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
             </div>
-          )}
+          </DialogHeader>
 
-          <DialogFooter>
-            {selectedRestaurant?.approvalStatus === "pending_approval" && (
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedRestaurant(selectedRestaurant)
-                    setIsRejectDialogOpen(true)
-                    setIsViewDialogOpen(false)
-                  }}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Reject
-                </Button>
-                <Button
-                  onClick={() => handleApprove(selectedRestaurant._id)}
-                  disabled={isProcessing === selectedRestaurant._id}
-                >
-                  {isProcessing === selectedRestaurant._id ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
-                  )}
-                  Approve
-                </Button>
-              </>
+          <div className="px-6 py-4">
+            {selectedRestaurant && (
+              <RestaurantPreview
+                restaurantId={selectedRestaurant._id}
+                slug={selectedRestaurant.slug}
+                restaurantData={selectedRestaurant}
+                onClose={() => setIsViewDialogOpen(false)}
+              />
             )}
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
 

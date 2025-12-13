@@ -25,6 +25,7 @@ app.set("views", path.join(__dirname, "../views"))
 // Middleware
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:3002",
   "https://dine-onn-time.vercel.app",
   process.env.FRONTEND_URL,
 ].filter(Boolean) as string[]

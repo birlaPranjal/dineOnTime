@@ -182,7 +182,18 @@ export default function RestaurantProfilePage() {
       toast.success(data.message || "Profile submitted for approval!")
       fetchProfile()
     } catch (error: any) {
-      toast.error(error.message || "Failed to submit for approval")
+      // Display detailed error message if server provides missing fields
+      if (error.response?.data?.missingFields) {
+        const missingFields = error.response.data.missingFields
+        toast.error(
+          `Missing required fields: ${missingFields.join(", ")}`,
+          { duration: 5000 }
+        )
+      } else if (error.response?.data?.message) {
+        toast.error(error.response.data.message, { duration: 5000 })
+      } else {
+        toast.error(error.message || "Failed to submit for approval")
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -265,13 +276,28 @@ export default function RestaurantProfilePage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-navy">Restaurant Profile</h2>
-          <p className="text-muted-foreground">Complete your restaurant details to go live</p>
+          <h2 className="text-2xl font-bold text-navy">
+            {restaurantStatus?.profileCompleted ? "Restaurant Profile" : "Restaurant Setup"}
+          </h2>
+          <p className="text-muted-foreground">
+            {restaurantStatus?.profileCompleted 
+              ? "Manage your restaurant details" 
+              : "Complete your restaurant details to go live"}
+          </p>
         </div>
         {getStatusBadge()}
       </div>
 
-      {restaurantStatus && restaurantStatus.approvalStatus === "pending_approval" && (
+      {restaurantStatus && !restaurantStatus.profileCompleted && (
+        <Alert>
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            Please complete all required fields (marked with *) to submit your profile for approval.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {restaurantStatus && restaurantStatus.profileCompleted && restaurantStatus.approvalStatus === "pending_approval" && (
         <Alert>
           <Clock className="h-4 w-4" />
           <AlertDescription>
